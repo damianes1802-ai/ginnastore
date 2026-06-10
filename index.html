@@ -1096,36 +1096,30 @@ function parseCSV(text) {
   let cur = "", inQ = false, row = [];
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { row.push(cur.trim()); cur = ""; continue; }
-    if ((c === '\n' || (c === '\r' && text[i+1] === '\n')) && !inQ) {
-      if (c === '\r') i++;
-      row.push(cur.trim()); rows.push(row); row = []; cur = "";
+    if (c === '"') {
+      if (inQ && text[i+1] === '"') { cur += '"'; i++; continue; }
+      inQ = !inQ; continue;
+    }
+    if (c === ',' && !inQ) { row.push(cur); cur = ""; continue; }
+    if ((c === '\n' || c === '\r') && !inQ) {
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cur); rows.push(row); row = []; cur = "";
       continue;
     }
     cur += c;
   }
-  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
-  const hi = rows.findIndex(r => r[0]?.toLowerCase() === "nombre");
+  if (cur || row.length) { row.push(cur); rows.push(row); }
+  const hi = rows.findIndex(r => r[0]?.toLowerCase().trim() === "nombre");
   if (hi === -1) return [];
   const headers = rows[hi].map(h => h.toLowerCase().trim());
-  return rows.slice(hi + 2).map(r => {
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = (r[i] || "").replace(/^"+|"+$/g, "").replace(/""/g, '"').trim());
-    return obj;
-  }).filter(p => p.nombre && p.nombre !== "Nombre del producto" && p.disponible?.toUpperCase() !== "NO");
-}
-function parseCSVLine(line) {
-  const result = [];
-  let cur = "", inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { result.push(cur); cur = ""; continue; }
-    cur += c;
-  }
-  result.push(cur);
-  return result;
+  return rows.slice(hi + 2)
+    .filter(r => r.length > 1)
+    .map(r => {
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+      return obj;
+    })
+    .filter(p => p.nombre && p.nombre !== "Nombre del producto" && p.disponible?.toUpperCase() !== "NO");
 }
 
 // ── RENDER ───────────────────────────────────────
