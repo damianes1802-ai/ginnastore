@@ -1111,7 +1111,7 @@ function parseCSV(text) {
   const headers = rows[hi].map(h => h.toLowerCase().trim());
   return rows.slice(hi + 2).map(r => {
     const obj = {};
-    headers.forEach((h, i) => obj[h] = (r[i] || "").replace(/^"|"$/g, "").trim());
+    headers.forEach((h, i) => obj[h] = (r[i] || "").replace(/^"+|"+$/g, "").replace(/""/g, '"').trim());
     return obj;
   }).filter(p => p.nombre && p.nombre !== "Nombre del producto" && p.disponible?.toUpperCase() !== "NO");
 }
