@@ -1092,18 +1092,29 @@ async function loadProducts() {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headerRowIndex = lines.findIndex(l => l.toLowerCase().startsWith("nombre"));
-  if (headerRowIndex === -1) return [];
-  const headers = parseCSVLine(lines[headerRowIndex]).map(h => h.toLowerCase().trim());
-  return lines.slice(headerRowIndex + 2).map(line => {
-    const vals = parseCSVLine(line);
+  const rows = [];
+  let cur = "", inQ = false, row = [];
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { row.push(cur.trim()); cur = ""; continue; }
+    if ((c === '\n' || (c === '\r' && text[i+1] === '\n')) && !inQ) {
+      if (c === '\r') i++;
+      row.push(cur.trim()); rows.push(row); row = []; cur = "";
+      continue;
+    }
+    cur += c;
+  }
+  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+  const hi = rows.findIndex(r => r[0]?.toLowerCase() === "nombre");
+  if (hi === -1) return [];
+  const headers = rows[hi].map(h => h.toLowerCase().trim());
+  return rows.slice(hi + 2).map(r => {
     const obj = {};
-    headers.forEach((h, i) => obj[h] = (vals[i] || "").trim().replace(/^"|"$/g, ""));
+    headers.forEach((h, i) => obj[h] = (r[i] || "").replace(/^"|"$/g, "").trim());
     return obj;
   }).filter(p => p.nombre && p.nombre !== "Nombre del producto" && p.disponible?.toUpperCase() !== "NO");
 }
-
 function parseCSVLine(line) {
   const result = [];
   let cur = "", inQ = false;
