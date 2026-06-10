@@ -1093,14 +1093,15 @@ async function loadProducts() {
 
 function parseCSV(text) {
   const lines = text.trim().split("\n");
-  if (lines.length < 2) return [];
-  const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
-  return lines.slice(1).map(line => {
+  const headerRowIndex = lines.findIndex(l => l.toLowerCase().startsWith("nombre"));
+  if (headerRowIndex === -1) return [];
+  const headers = parseCSVLine(lines[headerRowIndex]).map(h => h.toLowerCase().trim());
+  return lines.slice(headerRowIndex + 2).map(line => {
     const vals = parseCSVLine(line);
     const obj = {};
     headers.forEach((h, i) => obj[h] = (vals[i] || "").trim().replace(/^"|"$/g, ""));
     return obj;
-  }).filter(p => p.nombre && p.disponible?.toUpperCase() !== "NO");
+  }).filter(p => p.nombre && p.nombre !== "Nombre del producto" && p.disponible?.toUpperCase() !== "NO");
 }
 
 function parseCSVLine(line) {
