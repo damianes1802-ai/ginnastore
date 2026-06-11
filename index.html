@@ -400,7 +400,7 @@
   }
   .modal-img-placeholder {
     width: 100%;
-    aspect-ratio: 4/3;
+    aspect-ratio: 1/1;
     background: var(--copper-pale);
     display: flex;
     align-items: center;
@@ -410,7 +410,7 @@
   .gallery-wrap { position: relative; }
   .gallery-main {
     width: 100%;
-    aspect-ratio: 4/3;
+    aspect-ratio: 1/1;
     object-fit: cover;
     background: var(--copper-pale);
     display: block;
@@ -1238,7 +1238,7 @@ function renderModal() {
         ${fotos.map((f, i) => `<img class="gallery-thumb ${i===0?'active':''}" src="${f}" onclick="galleryGo(${i})" alt="foto ${i+1}">`).join("")}
       </div>`
     : fotos.length === 1
-      ? `<img class="gallery-main" src="${fotos[0]}" alt="${p.nombre}" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--copper-pale)">`
+      ? `<img class="gallery-main" src="${fotos[0]}" alt="${p.nombre}" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--copper-pale)">`
       : `<div class="modal-img-placeholder">👗</div>`;
 
   const tallesHtml = talles.length ? `
